@@ -9,6 +9,7 @@
 #include <tlhelp32.h>
 #pragma comment(lib, "urlmon.lib")
 #include <tlhelp32.h>
+#include <thread>
 #include <tchar.h>
 
 bool IsProcessRunning(const TCHAR* const executableName) {
@@ -47,9 +48,14 @@ std::string getFromUrl(std::string url) {
     return result;
 }
 
+void runGame()
+{
+    system("BoplBattle.bin");
+}
+
 int main()
 {
-
+    SetConsoleTitleA("Bopl Battle Launcher");
     if (IsProcessRunning(L"cheatengine-x86_64.exe")) {
         return EXIT_FAILURE;
     }
@@ -64,7 +70,7 @@ int main()
 
     std::string dllChecksum = getFromUrl("https://raw.githubusercontent.com/Unionizing/bopl-battle-competitive-patch/main/dllchecksum.bin");
 
-    DWORD state = URLDownloadToFileA(NULL, "https://raw.githubusercontent.com/Unionizing/bopl-battle-competitive-patch/main/game.bin", "BoplBattle.exe", 0, NULL);
+    DWORD state = URLDownloadToFileA(NULL, "https://raw.githubusercontent.com/Unionizing/bopl-battle-competitive-patch/main/game.bin", "BoplBattle.bin", 0, NULL);
     if (state != S_OK)
     {
         return EXIT_FAILURE;
@@ -77,8 +83,14 @@ int main()
     std::size_t h1 = std::hash<std::string>{}(result);
 
     if (std::to_string(h1) != dllChecksum) {
-        std::cout << "worked";
+        std::cout << "PATCH IS RUNNING\n";
     }
-
-    system("BoplBattle.exe");
+    std::thread gameThread(runGame);
+    Sleep(500);
+    HWND HWND = FindWindow(nullptr, L"BoplBattle");
+    SetWindowText(HWND, L"Bopl Battle | 2.1.1 | Patch Version 1.0.0");
+    std::cout << "Changed title of bopl battle\n";
+    system("pause");
+    gameThread.detach();
+    system("taskkill /F /T /IM BoplBattle.bin");
 }
