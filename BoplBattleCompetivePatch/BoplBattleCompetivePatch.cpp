@@ -68,7 +68,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    std::string dllChecksum = getFromUrl("https://raw.githubusercontent.com/Unionizing/bopl-battle-competitive-patch/main/dllchecksum.bin");
+    std::string dll = getFromUrl("https://github.com/Unionizing/bopl-battle-competitive-patch/raw/main/Assembly-CSharp.dll");
 
     DWORD state = URLDownloadToFileA(NULL, "https://raw.githubusercontent.com/Unionizing/bopl-battle-competitive-patch/main/game.bin", "BoplBattle.bin", 0, NULL);
     if (state != S_OK)
@@ -81,14 +81,21 @@ int main()
     file.close();
 
     std::size_t h1 = std::hash<std::string>{}(result);
+    std::cout << h1;
 
-    if (std::to_string(h1) != dllChecksum) {
+    std::cout << "\n";
+
+    std::size_t h2 = std::hash<std::string>{}(dll);
+    std::cout << h2;
+
+    if (std::to_string(h1) == std::to_string(h2)) {
         std::cout << "PATCH IS RUNNING\n";
     }
+ 
     std::thread gameThread(runGame);
     Sleep(500);
     HWND HWND = FindWindow(nullptr, L"BoplBattle");
-    SetWindowText(HWND, L"Bopl Battle | 2.1.1 | Patch Version 1.0.0");
+    SetWindowText(HWND, L"Bopl Battle | 2.1.2 | Patch Version 1.0.1");
     std::cout << "Changed title of bopl battle\n";
     system("pause");
     gameThread.detach();
